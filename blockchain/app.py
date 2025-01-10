@@ -1,44 +1,64 @@
 import streamlit as st
-import sqlite3
+from streamlit_option_menu import option_menu
 
-# Connect to the SQLite database or create it if it doesn't exist
-conn = sqlite3.connect('database.db')
-c = conn.cursor()
+# 1=sidebar menu, 2=horizontal menu, 3=horizontal menu w/ custom menu
+EXAMPLE_NO = 1
 
-# Create a table if not exists
-c.execute('''
-    CREATE TABLE IF NOT EXISTS user_data (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        number TEXT NOT NULL UNIQUE,
-        name TEXT NOT NULL
-    )
-''')
-conn.commit()
 
-# Streamlit App Interface
-st.title("Simple Database App")
+def streamlit_menu(example=1):
+    if example == 1:
+        # 1. as sidebar menu
+        with st.sidebar:
+            selected = option_menu(
+                menu_title="Main Menu",  # required
+                options=["Home", "Projects", "Contact"],  # required
+                icons=["house", "book", "envelope"],  # optional
+                menu_icon="cast",  # optional
+                default_index=0,  # optional
+            )
+        return selected
 
-st.subheader("Enter User Details")
+    if example == 2:
+        # 2. horizontal menu w/o custom style
+        selected = option_menu(
+            menu_title=None,  # required
+            options=["Home", "Projects", "Contact"],  # required
+            icons=["house", "book", "envelope"],  # optional
+            menu_icon="cast",  # optional
+            default_index=0,  # optional
+            orientation="horizontal",
+        )
+        return selected
 
-# Input fields for number and name
-number = st.text_input("Enter a 12-digit number")
-name = st.text_input("Enter your name")
+    if example == 3:
+        # 2. horizontal menu with custom style
+        selected = option_menu(
+            menu_title=None,  # required
+            options=["Home", "Projects", "Contact"],  # required
+            icons=["house", "book", "envelope"],  # optional
+            menu_icon="cast",  # optional
+            default_index=0,  # optional
+            orientation="horizontal",
+            styles={
+                "container": {"padding": "0!important", "background-color": "#fafafa"},
+                "icon": {"color": "orange", "font-size": "25px"},
+                "nav-link": {
+                    "font-size": "25px",
+                    "text-align": "left",
+                    "margin": "0px",
+                    "--hover-color": "#eee",
+                },
+                "nav-link-selected": {"background-color": "green"},
+            },
+        )
+        return selected
 
-# Submit button to save data to the database
-if st.button("Submit"):
-    if len(number) == 12 and number.isdigit() and name:
-        try:
-            c.execute("INSERT INTO user_data (number, name) VALUES (?, ?)", (number, name))
-            conn.commit()
-            st.success("Data added successfully!")
-        except sqlite3.IntegrityError:
-            st.error("Number already exists in the database.")
-    else:
-        st.error("Please enter a valid 12-digit number and name.")
 
-# Display the data from the database
-st.subheader("Stored Data")
-c.execute("SELECT * FROM user_data")
-rows = c.fetchall()
-for row in rows:
-    st.write(f"ID: {row[0]}, Number: {row[1]}, Name: {row[2]}")
+selected = streamlit_menu(example=EXAMPLE_NO)
+
+if selected == "Home":
+    st.title(f"You have selected {selected}")
+if selected == "Projects":
+    st.title(f"You have selected {selected}")
+if selected == "Contact":
+    st.title(f"You have selected {selected}")
